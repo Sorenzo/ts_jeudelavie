@@ -3,15 +3,15 @@ import './style.css'
 const canvas = document.getElementById("game") as HTMLCanvasElement;
 const cursor = document.getElementById("cursor") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d", { willReadFrequently: true }) as CanvasRenderingContext2D;
-const ctxGrid = canvas.getContext("2d", { willReadFrequently: true }) as CanvasRenderingContext2D;
 const startBtn = document.querySelector('#start') as HTMLCanvasElement;
 const clearBtn = document.querySelector('#clear') as HTMLCanvasElement;
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 const gridCellSize = 10;
-let interval = null;
+let interval: any = null;
 
+/*
 function drawGrid(ctx: CanvasRenderingContext2D, width: number, height: number, cellWidth: number, cellHeight: number) {
   ctx.beginPath();
   ctx.strokeStyle = "#ccc";
@@ -28,6 +28,7 @@ function drawGrid(ctx: CanvasRenderingContext2D, width: number, height: number, 
 
   ctx.stroke();
 }
+*/
 
 function createPixel(x: number, y: number) {
   ctx.beginPath();
@@ -138,7 +139,6 @@ startBtn.addEventListener('click', () => {
 
 clearBtn.addEventListener('click', () => {
   clearInterval(interval);
-  let nb = 0;
   ctx.fillStyle = "#FFF";
   for(let i=0; i < canvas.width; i+=gridCellSize) {
     for(let j=0; j < canvas.height; j+=gridCellSize) {
