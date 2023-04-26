@@ -1,13 +1,16 @@
 import './style.css'
 
-const canvas = document.getElementById("tutorial") as HTMLCanvasElement;
+const canvas = document.getElementById("game") as HTMLCanvasElement;
 const cursor = document.getElementById("cursor") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d", { willReadFrequently: true }) as CanvasRenderingContext2D;
 const ctxGrid = canvas.getContext("2d", { willReadFrequently: true }) as CanvasRenderingContext2D;
-const testBtn = document.querySelector('#testBtn') as HTMLCanvasElement;
+const startBtn = document.querySelector('#start') as HTMLCanvasElement;
+const clearBtn = document.querySelector('#clear') as HTMLCanvasElement;
 
-canvas.width = 800;
-canvas.height = 800;
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+const gridCellSize = 10;
+let interval = null;
 
 function drawGrid(ctx: CanvasRenderingContext2D, width: number, height: number, cellWidth: number, cellHeight: number) {
   ctx.beginPath();
@@ -26,30 +29,21 @@ function drawGrid(ctx: CanvasRenderingContext2D, width: number, height: number, 
   ctx.stroke();
 }
 
-drawGrid(ctxGrid, canvas.width, canvas.height, 10, 10);
-
-canvas.addEventListener('mouseover', (e) => {
-  cursor.style.left = `${e.clientX}px`;
-  cursor.style.top = `${e.clientY}px`;
+function createPixel(x: number, y: number) {
+  ctx.beginPath();
+  
+  ctx.fillRect(x, y, gridCellSize, gridCellSize);
 }
 
+function getPixelData(x: number, y: number) {
+  return ctx.getImageData(x, y, gridCellSize, gridCellSize).data;
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
+function addPixel() {
+  const x = cursor.offsetLeft - canvas.offsetLeft;
+  const y = cursor.offsetTop - canvas.offsetTop;
+  createPixel(x, y);
+}
 
 function isBlack(pixelData: Uint8ClampedArray) {
   if(
@@ -64,160 +58,86 @@ function isBlack(pixelData: Uint8ClampedArray) {
   }
 }
 
-const test = () => {
-  let pixelData = ctx.getImageData(1, 1, 1, 1).data;
-  
-  let nombreDeGeneration = 0;
+//drawGrid(ctxGrid, canvas.width, canvas.height, gridCellSize, gridCellSize);
 
-  while(nombreDeGeneration < 1) {
-    let caseVivante: [] = [];
-    let caseMorte: [] = [];
-    
-    for (let x = 0; x < displayWidth; x++) {
-      for (let y = 0; y < displayHeight; y++) {
-        let nbCases = 0;
+canvas.addEventListener('mousemove', (e) => {
+  const cursorLeft = e.clientX - (cursor.offsetWidth / 2);
+  const cursorTop = e.clientY - (cursor.offsetHeight / 2);
 
-        pixelData = ctx.getImageData(x, y, 1, 1).data;
+  cursor.style.left = Math.floor(cursorLeft / gridCellSize) * gridCellSize + "px";
+  cursor.style.top = Math.floor(cursorTop / gridCellSize) * gridCellSize + "px";
+});
 
-        if(isBlack(pixelData)) {
-          console.log(x, y);
-          nbCases++;
-        }
+canvas.addEventListener('click', () => {
+  ctx.fillStyle = "#000";
+  addPixel();
+})
 
-      
-        for(let i = x-1; i < x+2; i++) {
-          for(let j = y-1; j < y+2; j++) {
-            
+cursor.addEventListener('click', () => {
+  ctx.fillStyle = "#000";
+  addPixel();
+})
+
+startBtn.addEventListener('click', () => {
+  interval = setInterval(() => {
+    let aliveCells: any[] = [];
+    let deadCells: any[] = [];
+
+    for(let x=0; x < canvas.width; x+=gridCellSize) {
+      for(let y=0; y < canvas.height; y+=gridCellSize) {
+        let pixelData = getPixelData(x, y);
+        let nb = 0;
+
+        for(let i=x-10; i < x+20; i+=10) {
+          for(let j=y-10; j < y+20; j+=10) {
             if(i == x && j == y) {
-              continue;
-            } else {
-              
-              if(
-                (pixelData[0] == 0) &&
-                (pixelData[1] == 0) &&
-                (pixelData[2] == 0) &&
-                (pixelData[3] == 255)
-              ) {
-  
-                pixelData = ctx.getImageData(i, j, 1, 1).data;
-  
-                if(
-                  (pixelData[0] == 0) &&
-                  (pixelData[1] == 0) &&
-                  (pixelData[2] == 0) &&
-                  (pixelData[3] == 255)
-                ) {
-                  nbCases++;
-                }
-  
-                
-                //console.log(pixelData[0], pixelData[1], pixelData[2], pixelData[3])
+              continue
+            }else {
+              let p = getPixelData(i, j);
+              if(isBlack(p)){
+                nb++;
               }
             }
           }
         }
 
-        
-  
-        if(
-          (pixelData[0] == 0) &&
-          (pixelData[1] == 0) &&
-          (pixelData[2] == 0) &&
-          (pixelData[3] == 255)
-        ) {
-          if (nbCases == 3){
-            caseVivante.push([x, y]);
-          } else{
-            caseMorte.push([x, y]);
+        if(isBlack(pixelData)) {
+          if(nb > 3 || nb < 2) {
+            deadCells.push([x, y]);
+          } else {
+            aliveCells.push([x, y]);
           }
         } else {
-          if (nbCases == 3 || nbCases == 2){
-            caseVivante.push([x, y]);
+          if(nb == 3) {
+            aliveCells.push([x, y]);
           } else {
-            caseMorte.push([x, y]);
+            deadCells.push([x, y]);
           }
         }
-        
       }
     }
 
-
-    
-    for(let i = 0; i < caseVivante.length; i++) {
-      ctx.fillStyle = "#000000";
-      ctx.fillRect(caseVivante[i][0], caseVivante[i][1], 1, 1);
-    }
-  
-    for(let i = 0; i < caseMorte.length; i++) {
-      ctx.fillStyle = "#FFFFFF";
-      ctx.fillRect(caseMorte[i][0], caseMorte[i][1], 1, 1);
+    for(let i=0; i < deadCells.length; i++) {
+      ctx.fillStyle = "#FFF";
+      createPixel(deadCells[i][0], deadCells[i][1]);
     }
 
-    nombreDeGeneration++
+    for(let i=0; i < aliveCells.length; i++) {
+      ctx.fillStyle = "#000";
+      createPixel(aliveCells[i][0], aliveCells[i][1]);
+    }
+  }, 1);
+})
 
-    if(nombreDeGeneration == 100){ console.log(nombreDeGeneration) }
+clearBtn.addEventListener('click', () => {
+  clearInterval(interval);
+  let nb = 0;
+  ctx.fillStyle = "#FFF";
+  for(let i=0; i < canvas.width; i+=gridCellSize) {
+    for(let j=0; j < canvas.height; j+=gridCellSize) {
+      createPixel(i, j);
+    }
   }
 
-  
-  
-  
-      
-      for(let i = x-1; i < x+2; i++) {
-        for(let j = y-1; j < y+2; j++) {
-          
-          let pixelData = ctx.getImageData(i, j, 1, 1).data;
-          if(
-            (pixelData[0] == 0) &&
-            (pixelData[1] == 0) &&
-            (pixelData[2] == 0) &&
-            (pixelData[3] == 255)
-          ) {
-            console.log(i, j);
-            
-            //console.log(pixelData[0], pixelData[1], pixelData[2], pixelData[3])
-          }
-          
-        
-          if(i == x && j == y) {
-            continue;
-          } else {
-            let pixelData = ctx.getImageData(i, j, 1, 1).data;
-            if(
-              (pixelData[0] == 0) &&
-              (pixelData[1] == 0) &&
-              (pixelData[2] == 0) &&
-              (pixelData[3] == 255)
-            ) {
-              nbCase++;
-              console.log(nbCase, i, j);
-              
-              //console.log(pixelData[0], pixelData[1], pixelData[2], pixelData[3])
-            }
-          }
-
-          
-        }
-      }
-
-      if(
-        (pixelData[0] == 0) &&
-        (pixelData[1] == 0) &&
-        (pixelData[2] == 0) &&
-        (pixelData[3] == 0)
-      ) {
-        if (nbCase == 3 || nbCase == 2){
-          caseVivante.push([x, y]);
-        } else {
-          caseMorte.push([x, y]);
-        }
-      } else {
-        if (nbCase == 3){
-          caseVivante.push([x, y]);
-        } else{
-          caseMorte.push([x, y]);
-        }
-      }
-}
-
-
-*/
+  //drawGrid(ctxGrid, canvas.width, canvas.height, gridCellSize, gridCellSize);
+})
