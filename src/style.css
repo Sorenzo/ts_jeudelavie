@@ -12,8 +12,9 @@ body {
   text-align: center;
 }
 
-#tutorial {
-  border: 1px solid black;
-  height: 800px;
-  width: 800px;
+#cursor {
+  position: absolute;
+  height: 10px;
+  width: 10px;
+  background-color: #000;
 }
