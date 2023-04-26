@@ -42,6 +42,15 @@ function getPixelData(x: number, y: number) {
 function addPixel() {
   const x = cursor.offsetLeft - canvas.offsetLeft;
   const y = cursor.offsetTop - canvas.offsetTop;
+
+  let pixelData = getPixelData(x, y);
+
+  if(isBlack(pixelData)) {
+    ctx.fillStyle = "#fff";
+  } else {
+    ctx.fillStyle = "#000";
+  }
+
   createPixel(x, y);
 }
 
@@ -69,12 +78,10 @@ canvas.addEventListener('mousemove', (e) => {
 });
 
 canvas.addEventListener('click', () => {
-  ctx.fillStyle = "#000";
   addPixel();
 })
 
 cursor.addEventListener('click', () => {
-  ctx.fillStyle = "#000";
   addPixel();
 })
 
