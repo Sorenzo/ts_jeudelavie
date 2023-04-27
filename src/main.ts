@@ -119,11 +119,13 @@ startBtn.addEventListener('click', () => {
           if(nb == 3) {
             aliveCells.push([x, y]);
           } else {
-            deadCells.push([x, y]);
+            //deadCells.push([x, y]);
           }
         }
       }
     }
+
+    console.log(deadCells)
 
     for(let i=0; i < deadCells.length; i++) {
       ctx.fillStyle = "#FFF";
