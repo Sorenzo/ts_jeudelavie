@@ -1,3 +1,5 @@
+[![Build](https://github.com/Sorenzo/ts_jeudelavie/actions/workflows/build.yml/badge.svg)](https://github.com/Sorenzo/ts_jeudelavie/actions/workflows/build.yml)
+
 # JEU DE LA VIE 
 
 This template should help get you started developing with Vue 3 in Vite.
