@@ -34,5 +34,5 @@ jobs:
           server: ${{ env.FTP_SERVER }}
           username: ${{ env.FTP_USERNAME }}
           password: ${{ env.FTP_PASSWORD }}
-          local-dir: dist/
+          local-dir: ./dist/
           server-dir: /sites/jdlv.sorenzogv.fr/
