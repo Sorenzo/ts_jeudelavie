@@ -1,0 +1,38 @@
+name: Build and Deploy
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+env:
+  FTP_SERVER: ${{ secrets.FTP_SERVER }}
+  FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+  FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Deploy
+        uses: SamKirkland/FTP-Deploy-Action@4.0.0
+        with:
+          server: ${{ env.FTP_SERVER }}
+          username: ${{ env.FTP_USERNAME }}
+          password: ${{ env.FTP_PASSWORD }}
+          local-dir: dist/
+          server-dir: /sites/jdlv.sorenzogv.fr
