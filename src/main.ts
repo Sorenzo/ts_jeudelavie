@@ -11,25 +11,6 @@ canvas.height = window.innerHeight;
 const gridCellSize = 10;
 let interval: any = null;
 
-/*
-function drawGrid(ctx: CanvasRenderingContext2D, width: number, height: number, cellWidth: number, cellHeight: number) {
-  ctx.beginPath();
-  ctx.strokeStyle = "#ccc";
-
-  for(let i=0; i <= width; i++) {
-    ctx.moveTo(i * cellWidth, 0);
-    ctx.lineTo(i * cellWidth, height);
-  }
-
-  for(let i=0; i <= height; i++) {
-    ctx.moveTo(0, i * cellHeight);
-    ctx.lineTo(width, i * cellHeight);
-  }
-
-  ctx.stroke();
-}
-*/
-
 function createPixel(x: number, y: number) {
   ctx.beginPath();
   
@@ -150,3 +131,24 @@ clearBtn.addEventListener('click', () => {
 
   //drawGrid(ctxGrid, canvas.width, canvas.height, gridCellSize, gridCellSize);
 })
+
+
+
+/*
+function drawGrid(ctx: CanvasRenderingContext2D, width: number, height: number, cellWidth: number, cellHeight: number) {
+  ctx.beginPath();
+  ctx.strokeStyle = "#ccc";
+
+  for(let i=0; i <= width; i++) {
+    ctx.moveTo(i * cellWidth, 0);
+    ctx.lineTo(i * cellWidth, height);
+  }
+
+  for(let i=0; i <= height; i++) {
+    ctx.moveTo(0, i * cellHeight);
+    ctx.lineTo(width, i * cellHeight);
+  }
+
+  ctx.stroke();
+}
+*/
