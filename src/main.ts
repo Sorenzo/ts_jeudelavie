@@ -99,8 +99,6 @@ startBtn.addEventListener('click', () => {
         } else {
           if(nb == 3) {
             aliveCells.push([x, y]);
-          } else {
-            //deadCells.push([x, y]);
           }
         }
       }
