@@ -2,18 +2,21 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>05: Game Simulation - WebGPU Life</title>
+    <title>Jeu de la vie WebGPU</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   </head>
   <body>
-    <canvas width="512" height="512"></canvas>
+    <h1 style="font-family: 'Montserrat', sans-serif;">Jeu de la vie avec WebGPU (test)</h1>
+    <canvas width="1024" height="1024"></canvas>
     <script type="module">
       const GRID_SIZE = 64;
-      const UPDATE_INTERVAL = 250;
+      const UPDATE_INTERVAL = 200;
       const WORKGROUP_SIZE = 8;
 
       const canvas = document.querySelector("canvas");
 
-      // WebGPU device initialization
       if (!navigator.gpu) {
         throw new Error("WebGPU not supported on this browser.");
       }
@@ -25,7 +28,6 @@
 
       const device = await adapter.requestDevice();
 
-      // Canvas configuration
       const context = canvas.getContext("webgpu");
       const canvasFormat = navigator.gpu.getPreferredCanvasFormat();
       context.configure({
@@ -33,7 +35,6 @@
           format: canvasFormat,
       });
 
-      // Create a buffer with the vertices for a single cell.
       const vertices = new Float32Array([
         -0.8, -0.8,
          0.8, -0.8,
@@ -55,25 +56,24 @@
         attributes: [{
           format: "float32x2",
           offset: 0,
-          shaderLocation: 0, // Position. Matches @location(0) in the @vertex shader.
+          shaderLocation: 0,
         }],
       };
 
-      // Create the bind group layout and pipeline layout.
       const bindGroupLayout = device.createBindGroupLayout({
         label: "Cell Bind Group Layout",
         entries: [{
           binding: 0,
           visibility: GPUShaderStage.VERTEX | GPUShaderStage.COMPUTE,
-          buffer: {} // Grid uniform buffer
+          buffer: {} 
         }, {
           binding: 1,
           visibility: GPUShaderStage.VERTEX | GPUShaderStage.COMPUTE,
-          buffer: { type: "read-only-storage"} // Cell state input buffer
+          buffer: { type: "read-only-storage"} 
         }, {
           binding: 2,
           visibility: GPUShaderStage.COMPUTE,
-          buffer: { type: "storage"} // Cell state output buffer
+          buffer: { type: "storage"} 
         }]
       });
 
@@ -82,7 +82,6 @@
         bindGroupLayouts: [ bindGroupLayout ],
       });
 
-      // Create the shader that will render the cells.
       const cellShaderModule = device.createShaderModule({
         label: "Cell shader",
         code: `
@@ -118,7 +117,6 @@
         `
       });
 
-      // Create a pipeline that renders the cell.
       const cellPipeline = device.createRenderPipeline({
         label: "Cell pipeline",
         layout: pipelineLayout,
@@ -136,7 +134,6 @@
         }
       });
 
-      // Create the compute shader that will process the game of life simulation.
       const simulationShaderModule = device.createShaderModule({
         label: "Life simulation shader",
         code: `
@@ -184,7 +181,7 @@
         `
       });
 
-      // Create a compute pipeline that updates the game state.
+  
       const simulationPipeline = device.createComputePipeline({
         label: "Simulation pipeline",
         layout: pipelineLayout,
@@ -194,7 +191,7 @@
         }
       });
 
-      // Create a uniform buffer that describes the grid.
+
       const uniformArray = new Float32Array([GRID_SIZE, GRID_SIZE]);
       const uniformBuffer = device.createBuffer({
         label: "Grid Uniforms",
@@ -203,10 +200,8 @@
       });
       device.queue.writeBuffer(uniformBuffer, 0, uniformArray);
 
-      // Create an array representing the active state of each cell.
       const cellStateArray = new Uint32Array(GRID_SIZE * GRID_SIZE);
 
-      // Create two storage buffers to hold the cell state.
       const cellStateStorage = [
         device.createBuffer({
           label: "Cell State A",
@@ -219,15 +214,13 @@
           usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
         })
       ];
-
-      // Set each cell to a random state, then copy the JavaScript array into
-      // the storage buffer.
+      
       for (let i = 0; i < cellStateArray.length; ++i) {
         cellStateArray[i] = Math.random() > 0.6 ? 1 : 0;
       }
+
       device.queue.writeBuffer(cellStateStorage[0], 0, cellStateArray);
 
-      // Create a bind group to pass the grid uniforms into the pipeline
       const bindGroups = [
         device.createBindGroup({
           label: "Cell renderer bind group A",
@@ -263,7 +256,6 @@
       function updateGrid() {
         const encoder = device.createCommandEncoder();
 
-        // Start a compute pass
         const computePass = encoder.beginComputePass();
 
         computePass.setPipeline(simulationPipeline),
@@ -272,9 +264,8 @@
         computePass.dispatchWorkgroups(workgroupCount, workgroupCount);
         computePass.end();
 
-        step++; // Increment the step count
+        step++; 
 
-        // Start a render pass
         const pass = encoder.beginRenderPass({
           colorAttachments: [{
             view: context.getCurrentTexture().createView(),
@@ -284,13 +275,11 @@
           }]
         });
 
-        // Draw the grid.
         pass.setPipeline(cellPipeline);
-        pass.setBindGroup(0, bindGroups[step % 2]); // Updated!
+        pass.setBindGroup(0, bindGroups[step % 2]);
         pass.setVertexBuffer(0, vertexBuffer);
         pass.draw(vertices.length / 2, GRID_SIZE * GRID_SIZE);
-
-        // End the render pass and submit the command buffer
+  
         pass.end();
         device.queue.submit([encoder.finish()]);
       }
