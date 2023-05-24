@@ -11,7 +11,9 @@
     <h1 style="font-family: 'Montserrat', sans-serif;">Jeu de la vie avec WebGPU (test)</h1>
     <canvas width="1024" height="1024"></canvas>
     <script type="module">
-      const GRID_SIZE = 64;
+
+      async function render() {
+        const GRID_SIZE = 64;
       const UPDATE_INTERVAL = 200;
       const WORKGROUP_SIZE = 8;
 
@@ -284,6 +286,10 @@
         device.queue.submit([encoder.finish()]);
       }
       setInterval(updateGrid, UPDATE_INTERVAL);
+      }
+
+      render();
+      
     </script>
   </body>
 </html>
