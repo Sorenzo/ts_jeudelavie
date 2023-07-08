@@ -1,6 +1,6 @@
 [![Build and Deploy](https://github.com/Sorenzo/ts_jeudelavie/actions/workflows/main.yml/badge.svg)](https://github.com/Sorenzo/ts_jeudelavie/actions/workflows/main.yml)
 
-# JEU DE LA VIE 
+# JEU DE LA VIE !
 
 Jeu de la vie en TypeScript (canvas)
 
